@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +33,8 @@ import com.mercadona_app.mercadona.services.PromotionService;
 @RequestMapping("api/product")
 public class ProductController {
 
+  private static final Logger logInfo = LoggerFactory.getLogger(ProductController.class);
+
   @Autowired
   private ProductService productService;
 
@@ -40,13 +44,16 @@ public class ProductController {
 
   @PostMapping(value = {"add"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   public ResponseEntity<Object> addNewProduct(@RequestPart("product") Product product, @RequestPart(name = "imageFile", required = false) MultipartFile file) {
-    //  
+    logInfo.info("add new Product"); 
     try {
       if(file != null){
+        logInfo.info("Uploading image"); 
         Image image = uploadImage(file);
         product.setImage(image);
+        logInfo.info("image successfully uploaded");
       }
       Product result = productService.addNewProduct(product);
+      logInfo.info("new Product added successfully"); 
       return ResponseHandler.generateResponse("Successfully added data!", HttpStatus.OK, result);
     } catch (Exception e) {
       return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS, null);
@@ -68,7 +75,9 @@ public class ProductController {
   @GetMapping({"getAll"})
   public ResponseEntity<Object> getAllProducts(){
     try{
+      logInfo.info("get all Products");
       List<Product> result = productService.getAllProducts();
+      logInfo.info("retrieve all Products successfully");
       return ResponseHandler.generateResponse("Successfully retrieved data!", HttpStatus.OK, result);
     } catch (Exception e) {
       return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS, null);
@@ -77,13 +86,16 @@ public class ProductController {
 
   @GetMapping({"get/{id}"})
   public Product getProductById(@PathVariable("id") Integer id){
+    logInfo.info("get one product by id");
     return productService.getProductDetailsById(id);
   }
 
   @DeleteMapping({"delete/{id}"})
   public ResponseEntity<Object> deleteProductDetails(@PathVariable("id") Integer id) {
+    logInfo.info("delete product by id");
     try {
       productService.deleteProductDetails(id);
+      logInfo.info("product successfully deleted");
       return ResponseHandler.generateResponse("Successfully removed data!", HttpStatus.OK, null);
     } catch (Exception e) {
       return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS, null);
@@ -92,7 +104,7 @@ public class ProductController {
 
   @GetMapping({"modifyProductDiscountedPrice/{id}"})
   public ResponseEntity<Object> modifyProductDiscountedPrice(@PathVariable("id") Integer id){
-    
+    logInfo.info("modifying price of products after changing promotion percentage");
     Promotion promotion = promotionService.getPromotionDetailsById(id);
     List<Product> products =  productService.getProductsByPromotionId(id);
     try {
@@ -101,6 +113,7 @@ public class ProductController {
         product.setProductDiscountedPrice(Math.round(discountedPrice * 100.0) / 100.0);
         productService.addNewProduct(product);
       }
+      logInfo.info("Discounted Products prices Successfully updated!");
       return ResponseHandler.generateResponse("Discounted Products prices Successfully updated!", HttpStatus.OK, null);
     } catch (Exception e) {
       return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS, null);

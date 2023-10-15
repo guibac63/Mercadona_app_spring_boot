@@ -2,6 +2,8 @@ package com.mercadona_app.mercadona.controllers;
 
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +27,12 @@ import com.mercadona_app.mercadona.repository.UserRepository;
 import com.mercadona_app.mercadona.security.JWTGenerator;
 
 
+
 @RestController
 @RequestMapping("api/auth")
 public class AuthController {
+
+  private static final Logger logInfo = LoggerFactory.getLogger(AuthController.class);
   
   private AuthenticationManager authenticationManager;
   
@@ -52,13 +57,15 @@ public class AuthController {
   
   @PostMapping("login")
   public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDto loginDto ) {
+
+    logInfo.info("login triggered");
     Authentication authentication = authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(loginDto.getUsername(),loginDto.getPassword()));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String token = jwtGenerator.generateToken(authentication);
+    logInfo.info("login success");
     return new ResponseEntity<>(new AuthResponseDTO(token),HttpStatus.OK);
-
   }
 
 
