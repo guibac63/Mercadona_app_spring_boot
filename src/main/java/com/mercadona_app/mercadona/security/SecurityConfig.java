@@ -33,6 +33,21 @@ public class SecurityConfig {
     this.authEntrypoint = authEntrypoint;
   }
 
+  private static final String[] AUTH_WHITELIST = {
+      // -- Swagger UI v2
+      "/v2/api-docs",
+      "/swagger-resources",
+      "/swagger-resources/**",
+      "/configuration/ui",
+      "/configuration/security",
+      "/swagger-ui.html",
+      "/webjars/**",
+      // -- Swagger UI v3 (OpenAPI)
+      "/v3/api-docs/**",
+      "/swagger-ui/**"
+      // other public endpoints of your API may be appended to this array
+  };
+
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -46,6 +61,7 @@ public class SecurityConfig {
               .antMatchers("/api/auth/login").permitAll()
               .antMatchers("/api/product/getAll").permitAll()
               .antMatchers("/api/category/getAll").permitAll()
+              // .antMatchers(AUTH_WHITELIST).permitAll()
               .anyRequest().authenticated())
               .httpBasic(withDefaults());       
     http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

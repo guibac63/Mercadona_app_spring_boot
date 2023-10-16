@@ -26,6 +26,8 @@ import com.mercadona_app.mercadona.repository.RoleRepository;
 import com.mercadona_app.mercadona.repository.UserRepository;
 import com.mercadona_app.mercadona.security.JWTGenerator;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+
 
 
 @RestController
@@ -54,7 +56,7 @@ public class AuthController {
     this.jwtGenerator = jwtGenerator;
   }
 
-  
+  @RateLimiter(name="rateLoginLimit", fallbackMethod = "loginFallbackMethod")
   @PostMapping("login")
   public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDto loginDto ) {
 
@@ -67,6 +69,11 @@ public class AuthController {
     logInfo.info("login success");
     return new ResponseEntity<>(new AuthResponseDTO(token),HttpStatus.OK);
   }
+
+  private void loginFallbackMethod() {
+    logInfo.info("Too many login attemps");
+  }
+
 
 
 
