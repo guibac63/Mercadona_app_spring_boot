@@ -2,6 +2,7 @@ package com.mercadona_app.mercadona.controllers;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import com.mercadona_app.mercadona.models.Image;
 import com.mercadona_app.mercadona.models.Product;
 import com.mercadona_app.mercadona.models.Promotion;
 import com.mercadona_app.mercadona.response.ResponseHandler;
+import com.mercadona_app.mercadona.services.CloudinaryImageService;
 import com.mercadona_app.mercadona.services.ProductService;
 import com.mercadona_app.mercadona.services.PromotionService;
 
@@ -40,6 +42,9 @@ public class ProductController {
 
   @Autowired
   private PromotionService promotionService;
+
+  @Autowired
+  private CloudinaryImageService cloudinaryImageService;
 
 
   @PostMapping(value = {"add"}, consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -62,10 +67,11 @@ public class ProductController {
 
   public Image uploadImage(MultipartFile file) throws IOException {
       if(file != null){
+        Map result = this.cloudinaryImageService.upload(file);       
         Image image = new Image();
-        image.setImageName(file.getOriginalFilename());
-        image.setType(file.getContentType());
-        image.setPicByte(file.getBytes());
+        image.setImageName((String)result.get("original_filename"));
+        image.setImageUrl((String)result.get("secure_url"));
+        image.setImageId((String)result.get("public_id"));
         return image;
       }else{
         return null;

@@ -20,11 +20,10 @@ public class Image {
   
   private String imageName;
 
-  private String type;
-  
-  @Column(length = 50000000)
-  private byte[] picByte;
+  private String imageUrl;
 
+  private String imageId;
+  
   @JsonIgnore
   @OneToOne(mappedBy = "image")
   private Product product;

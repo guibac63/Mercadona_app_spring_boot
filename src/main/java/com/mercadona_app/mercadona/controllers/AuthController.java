@@ -74,9 +74,6 @@ public class AuthController {
     logInfo.info("Too many login attemps");
   }
 
-
-
-
   @PostMapping("register")
   public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
     if(userRepository.existsByUsername(registerDto.getUsername())) {
